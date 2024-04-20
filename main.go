@@ -4,6 +4,7 @@ import (
 	"github.com/Danendz/genshin-api-go/handlers"
 	"github.com/gin-gonic/gin"
 	"log"
+	"net/http"
 )
 
 func main() {
@@ -12,6 +13,12 @@ func main() {
 	if err := server.SetTrustedProxies([]string{"127.0.0.1"}); err != nil {
 		log.Fatal("Failed to set trusted proxies: ", err)
 	}
+
+	server.GET("/health-check", func(context *gin.Context) {
+		context.JSON(http.StatusOK, gin.H{
+			"message": "Ok",
+		})
+	})
 
 	v1 := server.Group("/v1")
 
