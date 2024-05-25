@@ -1,0 +1,26 @@
+version: "1"
+
+services:
+  app:
+    build: .
+    container_name: genshin-api-server
+    ports:
+      - 8080:8080
+    depends_on:
+      - mongo
+    profiles:
+      - full
+
+  mongo:
+    image: mongo
+    container_name: genshin-api-mongo
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: dev
+      MONGO_INITDB_ROOT_PASSWORD: root
+    volumes:
+      - mongodata:/data/db
+
+volumes:
+  mongodata:

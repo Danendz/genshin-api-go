@@ -1,40 +1,57 @@
 package main
 
 import (
-	"fmt"
-	"github.com/Danendz/genshin-api-go/handlers"
-	"github.com/gin-gonic/gin"
+	"context"
 	"log"
-	"net/http"
 	"os"
-	"strconv"
+
+	"github.com/Danendz/genshin-api-go/api"
+	"github.com/Danendz/genshin-api-go/api/routes"
+	"github.com/Danendz/genshin-api-go/db"
+	"github.com/gofiber/fiber/v3"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+var config = fiber.Config{
+	ErrorHandler: func(ctx fiber.Ctx, err error) error {
+		return ctx.JSON(api.NewApiResponse(err.Error(), nil, false))
+	},
+}
+
 func main() {
-	server := gin.Default()
-	port, err := strconv.Atoi(os.Getenv("PORT"))
+	//Mongo client
+	dbcreds := db.NewDBCreds()
+	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(dbcreds.DBURI).SetAuth(dbcreds.DBCREDS))
 
 	if err != nil {
-		port = 8080
+		log.Fatal(err)
 	}
 
-	if err := server.SetTrustedProxies([]string{"127.0.0.1"}); err != nil {
-		log.Fatal("Failed to set trusted proxies: ", err)
+	port := os.Getenv("PORT")
+	if len(port) == 0 {
+		port = ":8080"
 	}
 
-	server.GET("/health-check", func(context *gin.Context) {
-		context.JSON(http.StatusOK, gin.H{
+	app := fiber.New(config)
+
+	//Routes
+	v1 := app.Group("/api/v1")
+
+	routeParams := routes.RouteParams{
+		Client: client,
+		DBcreds: dbcreds,
+	}
+
+	routes.NewCharacterRoutes(v1.Group("/character"), routeParams)
+
+	app.Get("/health-check", func(ctx fiber.Ctx) error {
+		return ctx.JSON(map[string]string{
 			"message": "Ok",
 		})
 	})
 
-	v1 := server.Group("/v1")
-
-	v1.GET("/characters", handlers.GetCharacters)
-
-	v1.GET("/characters/:id", handlers.GetCharacter)
-
-	if err := server.Run(fmt.Sprintf(":%d", port)); err != nil {
-		log.Fatal("Failed to run server: ", err)
+	if err = app.Listen(port); err != nil {
+		log.Fatal(err)
 	}
 }
