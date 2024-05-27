@@ -34,10 +34,14 @@ func NewMongoCharacterStore(client *mongo.Client, dbcreds *DBCreds) *MongoCharac
 
 func (s *MongoCharacterStore) GetCharacters(ctx context.Context) ([]*types.Character, error) {
 	var characters []*types.Character
+
 	cur, err := s.coll.Find(ctx, bson.D{})
+
 	if err != nil {
 		return nil, err
 	}
+
+	defer cur.Close(ctx)
 
 	if err = cur.All(ctx, &characters); err != nil {
 		return nil, err

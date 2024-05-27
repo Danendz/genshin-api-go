@@ -44,6 +44,7 @@ func main() {
 	}
 
 	routes.NewCharacterRoutes(v1.Group("/character"), routeParams)
+	routes.NewVisionRoutes(v1.Group("/vision"), routeParams)
 
 	app.Get("/health-check", func(ctx fiber.Ctx) error {
 		return ctx.JSON(map[string]string{
