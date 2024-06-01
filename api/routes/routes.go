@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"github.com/Danendz/genshin-api-go/api"
 	"github.com/Danendz/genshin-api-go/api/handlers"
 	"github.com/Danendz/genshin-api-go/db"
 	"github.com/gofiber/fiber/v3"
@@ -18,15 +19,32 @@ func NewCharacterRoutes(router fiber.Router, params RouteParams) {
 	)
 
 	router.Get("/", characterHandler.HandleGetCharacters)
-	router.Post("/", characterHandler.HandleCreateCharacter)
-
 	router.Get("/:id", characterHandler.HandleGetCharacter)
-	router.Delete("/:id", characterHandler.HandleDeleteCharacter)
-	router.Put("/:id", characterHandler.HandleUpdateCharacter)
+
+	restricted := api.NewRestrictedApiRouter(router)
+	restricted.Post("/", characterHandler.HandleCreateCharacter)
+	restricted.Delete("/:id", characterHandler.HandleDeleteCharacter)
+	restricted.Put("/:id", characterHandler.HandleUpdateCharacter)
 }
 
 func NewVisionRoutes(router fiber.Router, params RouteParams) {
 	visionHandler := handlers.NewVisionHandler(db.NewMongoVisionStore(params.Client, params.DBcreds))
 
 	router.Get("/", visionHandler.HandleGetVisions)
+
+	restricted := api.NewRestrictedApiRouter(router)
+	restricted.Post("/", visionHandler.HandleCreateVision)
+	restricted.Delete("/:id", visionHandler.HandleDeleteVision)
+	restricted.Put("/:id", visionHandler.HandleUpdateVision)
+}
+
+func NewWeaponTypeRoutes(router fiber.Router, params RouteParams) {
+	weaponTypeHandler := handlers.NewWeaponTypeHandler(db.NewMongoWeaponTypeStore(params.Client, params.DBcreds))
+
+	router.Get("/", weaponTypeHandler.HandleGetWeaponTypes)
+
+	restricted := api.NewRestrictedApiRouter(router)
+	restricted.Post("/", weaponTypeHandler.HandleCreateWeaponType)
+	restricted.Delete("/:id", weaponTypeHandler.HandleDeleteWeaponType)
+	restricted.Put("/:id", weaponTypeHandler.HandleUpdateWeaponType)
 }

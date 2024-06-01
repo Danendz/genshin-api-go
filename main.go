@@ -9,6 +9,7 @@ import (
 	"github.com/Danendz/genshin-api-go/api/routes"
 	"github.com/Danendz/genshin-api-go/db"
 	"github.com/gofiber/fiber/v3"
+	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -20,6 +21,10 @@ var config = fiber.Config{
 }
 
 func main() {
+	if err := godotenv.Load(); err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
 	//Mongo client
 	dbcreds := db.NewDBCreds()
 	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(dbcreds.DBURI).SetAuth(dbcreds.DBCREDS))
@@ -29,9 +34,6 @@ func main() {
 	}
 
 	port := os.Getenv("PORT")
-	if len(port) == 0 {
-		port = ":8080"
-	}
 
 	app := fiber.New(config)
 
@@ -45,6 +47,7 @@ func main() {
 
 	routes.NewCharacterRoutes(v1.Group("/character"), routeParams)
 	routes.NewVisionRoutes(v1.Group("/vision"), routeParams)
+	routes.NewWeaponTypeRoutes(v1.Group("/weapon_type"), routeParams)
 
 	app.Get("/health-check", func(ctx fiber.Ctx) error {
 		return ctx.JSON(map[string]string{

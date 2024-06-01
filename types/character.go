@@ -6,7 +6,8 @@ import (
 
 type Character struct {
 	ID             primitive.ObjectID `bson:"_id,omitempty" json:"id"`
-	VisionId       primitive.ObjectID `bson:"vision_id" json:"vision_id"`
+	VisionID       primitive.ObjectID `bson:"vision_id" json:"vision_id"`
+	WeaponTypeID   primitive.ObjectID `bson:"weapon_type_id" json:"weapon_type_id"`
 	Name           string             `bson:"name" json:"name"`
 	NameKey        string             `bson:"name_key" json:"name_key"`
 	NationKey      string             `bson:"nation_key" json:"nation_key"`
@@ -19,8 +20,6 @@ type Character struct {
 	Constellations []Constellation    `bson:"constellations" json:"constellations"`
 	Description    string             `bson:"description" json:"description"`
 	Title          string             `bson:"title" json:"title"`
-
-	WeaponKey      WeaponKey          `bson:"weapon_key" json:"weapon_key"`
 }
 
 type Constellation struct {
@@ -39,16 +38,6 @@ type SkillTalent struct {
 	Description string    `bson:"description" json:"description"`
 	Type        SkillType `bson:"type" json:"type"`
 }
-
-type WeaponKey uint8
-
-const (
-	SWORD WeaponKey = iota
-	BOW
-	CLAYMORE
-	CATALYST
-	POLEARM
-)
 
 type SkillType uint8
 

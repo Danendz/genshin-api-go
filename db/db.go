@@ -16,17 +16,7 @@ type DBCreds struct {
 
 func NewDBCreds() *DBCreds {
 	dbname := os.Getenv("DBNAME")
-
-	if len(dbname) == 0 {
-		dbname = "genshin-api"
-	}
-
 	dburi := os.Getenv("DBURI")
-
-	if len(dburi) == 0 {
-		dburi = "mongodb://localhost:27017"
-	}
-
 	username := os.Getenv("DBUSERNAME")
 	password := os.Getenv("DBPASSWORD")
 

@@ -3,6 +3,7 @@ package types
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
 type Vision struct {
-	ID        primitive.ObjectID `bson:"_id,omitempty" json:"id"`
-	VisionKey string             `bson:"vision_key" json:"vision_key"`
+	ID          primitive.ObjectID `bson:"_id,omitempty" json:"id"`
+	VisionKey   string             `bson:"vision_key" json:"vision_key"`
+	VisionImage string             `bson:"vision_image" json:"vision_image"`
 }
