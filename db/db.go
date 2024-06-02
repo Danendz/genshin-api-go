@@ -39,7 +39,7 @@ func ToObjectID(id string) (primitive.ObjectID, error) {
 	return primitive.ObjectIDFromHex(id)
 }
 
-func MakeUpdateFormat(values *bson.M) *bson.D {
+func MakeUpdateFormat(values interface{}) *bson.D {
 	return &bson.D{
 		{
 			Key: "$set", Value: values,

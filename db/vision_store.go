@@ -14,9 +14,9 @@ const visionCol = "visions"
 
 type VisionStore interface {
 	GetVisions(ctx context.Context) ([]*types.Vision, error)
-	CreateVision(ctx context.Context, vision *types.Vision) (*types.Vision, error)
+	CreateVision(ctx context.Context, vision *types.VisionCreateParams) (*types.VisionCreateParams, error)
 	DeleteVision(ctx context.Context, id string) error
-	UpdateVision(ctx context.Context, id string, values *bson.M) (*types.Vision, error)
+	UpdateVision(ctx context.Context, id string, values *types.VisionUpdateParams) (*types.Vision, error)
 }
 
 type MongoVisionStore struct {
@@ -49,7 +49,7 @@ func (s *MongoVisionStore) GetVisions(ctx context.Context) ([]*types.Vision, err
 	return visions, nil
 }
 
-func (s *MongoVisionStore) CreateVision(ctx context.Context, vision *types.Vision) (*types.Vision, error) {
+func (s *MongoVisionStore) CreateVision(ctx context.Context, vision *types.VisionCreateParams) (*types.VisionCreateParams, error) {
 	res, err := s.coll.InsertOne(ctx, vision)
 
 	if err != nil {
@@ -75,7 +75,7 @@ func (s *MongoVisionStore) DeleteVision(ctx context.Context, id string) error {
 	return nil
 }
 
-func (s *MongoVisionStore) UpdateVision(ctx context.Context, id string, values *bson.M) (*types.Vision, error) {
+func (s *MongoVisionStore) UpdateVision(ctx context.Context, id string, values *types.VisionUpdateParams) (*types.Vision, error) {
 	var vision *types.Vision
 	oid, err := ToObjectID(id)
 

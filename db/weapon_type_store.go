@@ -14,9 +14,9 @@ const weaponTypeCol = "weapon-types"
 
 type WeaponTypeStore interface {
 	GetWeaponTypes(ctx context.Context) ([]*types.WeaponType, error)
-	CreateWeaponType(ctx context.Context, weaponType *types.WeaponType) (*types.WeaponType, error)
+	CreateWeaponType(ctx context.Context, weaponType *types.WeaponTypeCreateParams) (*types.WeaponTypeCreateParams, error)
 	DeleteWeaponType(ctx context.Context, id string) error
-	UpdateWeaponType(ctx context.Context, id string, values *bson.M) (*types.WeaponType, error)
+	UpdateWeaponType(ctx context.Context, id string, values *types.WeaponTypeUpdateParams) (*types.WeaponType, error)
 }
 
 type MongoWeaponTypeStore struct {
@@ -49,7 +49,7 @@ func (s *MongoWeaponTypeStore) GetWeaponTypes(ctx context.Context) ([]*types.Wea
 	return weaponTypes, nil
 }
 
-func (s *MongoWeaponTypeStore) CreateWeaponType(ctx context.Context, weaponType *types.WeaponType) (*types.WeaponType, error) {
+func (s *MongoWeaponTypeStore) CreateWeaponType(ctx context.Context, weaponType *types.WeaponTypeCreateParams) (*types.WeaponTypeCreateParams, error) {
 	res, err := s.coll.InsertOne(ctx, weaponType)
 
 	if err != nil {
@@ -75,7 +75,7 @@ func (s *MongoWeaponTypeStore) DeleteWeaponType(ctx context.Context, id string) 
 	return nil
 }
 
-func (s *MongoWeaponTypeStore) UpdateWeaponType(ctx context.Context, id string, values *bson.M) (*types.WeaponType, error) {
+func (s *MongoWeaponTypeStore) UpdateWeaponType(ctx context.Context, id string, values *types.WeaponTypeUpdateParams) (*types.WeaponType, error) {
 	var weaponType *types.WeaponType
 	oid, err := ToObjectID(id)
 

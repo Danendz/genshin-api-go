@@ -15,9 +15,9 @@ const characterCol = "characters"
 type CharacterStore interface {
 	GetCharacters(ctx context.Context) ([]*types.Character, error)
 	GetCharacter(ctx context.Context, id string) (*types.Character, error)
-	CreateCharacter(ctx context.Context, character *types.Character) (*types.Character, error)
+	CreateCharacter(ctx context.Context, character *types.CharacterCreateParams) (*types.CharacterCreateParams, error)
 	DeleteCharacter(ctx context.Context, id string) error
-	UpdateCharacter(ctx context.Context, id string, values *bson.M) (*types.Character, error)
+	UpdateCharacter(ctx context.Context, id string, values *types.CharacterUpdateParams) (*types.Character, error)
 }
 
 type MongoCharacterStore struct {
@@ -66,7 +66,7 @@ func (s *MongoCharacterStore) GetCharacter(ctx context.Context, id string) (*typ
 	return character, nil
 }
 
-func (s *MongoCharacterStore) CreateCharacter(ctx context.Context, character *types.Character) (*types.Character, error) {
+func (s *MongoCharacterStore) CreateCharacter(ctx context.Context, character *types.CharacterCreateParams) (*types.CharacterCreateParams, error) {
 	res, err := s.coll.InsertOne(ctx, character)
 
 	if err != nil {
@@ -92,7 +92,7 @@ func (s *MongoCharacterStore) DeleteCharacter(ctx context.Context, id string) er
 	return nil
 }
 
-func (s *MongoCharacterStore) UpdateCharacter(ctx context.Context, id string, values *bson.M) (*types.Character, error) {
+func (s *MongoCharacterStore) UpdateCharacter(ctx context.Context, id string, values *types.CharacterUpdateParams) (*types.Character, error) {
 	var character *types.Character
 	oid, err := ToObjectID(id)
 
