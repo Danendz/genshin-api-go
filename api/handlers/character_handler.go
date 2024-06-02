@@ -5,7 +5,6 @@ import (
 	"github.com/Danendz/genshin-api-go/db"
 	"github.com/Danendz/genshin-api-go/types"
 	"github.com/gofiber/fiber/v3"
-	"go.mongodb.org/mongo-driver/bson"
 )
 
 type CharacterHandler struct {
@@ -44,10 +43,14 @@ func (h *CharacterHandler) HandleGetCharacter(ctx fiber.Ctx) error {
 }
 
 func (h *CharacterHandler) HandleCreateCharacter(ctx fiber.Ctx) error {
-	var character *types.Character
+	var character *types.CharacterCreateParams
 
 	if err := ctx.Bind().Body(&character); err != nil {
 		return err
+	}
+
+	if errors := validator.Validate(character); len(errors) > 0 {
+		return ctx.JSON(api.NewApiResponse("invalid character", errors, false))
 	}
 
 	createdCharacter, err := h.characterStore.CreateCharacter(ctx.Context(), character)
@@ -72,7 +75,7 @@ func (h *CharacterHandler) HandleDeleteCharacter(ctx fiber.Ctx) error {
 func (h *CharacterHandler) HandleUpdateCharacter(ctx fiber.Ctx) error {
 	var (
 		id = ctx.Params("id")
-		values *bson.M
+		values *types.CharacterUpdateParams
 	)
 
 	if err := ctx.Bind().Body(&values); err != nil {

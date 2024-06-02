@@ -4,6 +4,41 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+type CharacterUpdateParams struct {
+	NameKey        string             `json:"name_key"`
+	Name           string             `json:"name"`
+	NationKey      string             `json:"nation_key"`
+	PassiveTalents []PassiveTalent    `json:"passive_talents"`
+	Rarity         uint8              `json:"rarity"`
+	SkillTalents   SkillTalent        `json:"skill_talent"`
+	Affiliation    string             `json:"affiliation"`
+	Birthday       string             `json:"birthday"`
+	Constellation  string             `json:"constellation"`
+	Constellations []Constellation    `json:"constellations"`
+	Description    string             `json:"description"`
+	Title          string             `json:"title"`
+	VisionID       primitive.ObjectID `json:"vision_id"`
+	WeaponTypeID   primitive.ObjectID `json:"weapon_type_id"`
+}
+
+type CharacterCreateParams struct {
+	ID             primitive.ObjectID `json:"_id,omitempty"`
+	NameKey        string             `json:"name_key" validate:"required"`
+	Name           string             `json:"name" validate:"required"`
+	NationKey      string             `json:"nation_key" validate:"required"`
+	PassiveTalents []PassiveTalent    `json:"passive_talents" validate:"required"`
+	Rarity         uint8              `json:"rarity" validate:"required,min=3,max=5"`
+	SkillTalents   SkillTalent        `json:"skill_talent" validate:"required"`
+	Affiliation    string             `json:"affiliation" validate:"required"`
+	Birthday       string             `json:"birthday" validate:"required"`
+	Constellation  string             `json:"constellation" validate:"required"`
+	Constellations []Constellation    `json:"constellations" validate:"required"`
+	Description    string             `json:"description" validate:"required"`
+	Title          string             `json:"title" validate:"required"`
+	VisionID       primitive.ObjectID `json:"vision_id" validate:"required"`
+	WeaponTypeID   primitive.ObjectID `json:"weapon_type_id" validate:"required"`
+}
+
 type Character struct {
 	ID             primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	VisionID       primitive.ObjectID `bson:"vision_id" json:"vision_id"`

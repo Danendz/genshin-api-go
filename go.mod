@@ -13,7 +13,7 @@ require (
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
-	github.com/go-playground/validator/v10 v10.19.0 // indirect
+	github.com/go-playground/validator/v10 v10.21.0 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/gofiber/fiber/v3 v3.0.0-beta.2 // indirect
 	github.com/gofiber/utils/v2 v2.0.0-beta.4 // indirect

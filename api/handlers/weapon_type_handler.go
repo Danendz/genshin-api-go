@@ -5,7 +5,6 @@ import (
 	"github.com/Danendz/genshin-api-go/db"
 	"github.com/Danendz/genshin-api-go/types"
 	"github.com/gofiber/fiber/v3"
-	"go.mongodb.org/mongo-driver/bson"
 )
 
 type WeaponTypeHandler struct {
@@ -33,10 +32,14 @@ func (h *WeaponTypeHandler) HandleGetWeaponTypes(ctx fiber.Ctx) (err error) {
 }
 
 func (h *WeaponTypeHandler) HandleCreateWeaponType(ctx fiber.Ctx) (err error) {
-	var weaponType *types.WeaponType
+	var weaponType *types.WeaponTypeCreateParams
 
 	if err := ctx.Bind().Body(&weaponType); err != nil {
 		return err
+	}
+
+	if errors := validator.Validate(weaponType); len(errors) > 0 {
+		return ctx.JSON(api.NewApiResponse("invalid weapon type", errors, false))
 	}
 
 	createdWeaponType, err := h.weaponTypeStore.CreateWeaponType(ctx.Context(), weaponType)
@@ -62,7 +65,7 @@ func (h *WeaponTypeHandler) HandleDeleteWeaponType(ctx fiber.Ctx) (err error) {
 func (h *WeaponTypeHandler) HandleUpdateWeaponType(ctx fiber.Ctx) (err error) {
 	var (
 		id = ctx.Params("id")
-		values *bson.M
+		values *types.WeaponTypeUpdateParams
 	)
 
 	if err := ctx.Bind().Body(&values); err != nil {
