@@ -1,9 +1,10 @@
-package db
+package dictionaries
 
 import (
 	"context"
+	"github.com/Danendz/genshin-api-go/db"
+	"github.com/Danendz/genshin-api-go/types/character/dictionaries"
 
-	"github.com/Danendz/genshin-api-go/types"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -13,10 +14,10 @@ import (
 const weaponTypeCol = "weapon-types"
 
 type WeaponTypeStore interface {
-	GetWeaponTypes(ctx context.Context) ([]*types.WeaponType, error)
-	CreateWeaponType(ctx context.Context, weaponType *types.WeaponTypeCreateParams) (*types.WeaponTypeCreateParams, error)
+	GetWeaponTypes(ctx context.Context) ([]*dictionaries.WeaponType, error)
+	CreateWeaponType(ctx context.Context, weaponType *dictionaries.WeaponTypeCreateParams) (*dictionaries.WeaponTypeCreateParams, error)
 	DeleteWeaponType(ctx context.Context, id string) error
-	UpdateWeaponType(ctx context.Context, id string, values *types.WeaponTypeUpdateParams) (*types.WeaponType, error)
+	UpdateWeaponType(ctx context.Context, id string, values *dictionaries.WeaponTypeUpdateParams) (*dictionaries.WeaponType, error)
 }
 
 type MongoWeaponTypeStore struct {
@@ -24,15 +25,15 @@ type MongoWeaponTypeStore struct {
 	coll   *mongo.Collection
 }
 
-func NewMongoWeaponTypeStore(client *mongo.Client, dbcreds *DBCreds) *MongoWeaponTypeStore {
+func NewMongoWeaponTypeStore(client *mongo.Client, dbcreds *db.Creds) *MongoWeaponTypeStore {
 	return &MongoWeaponTypeStore{
 		client: client,
 		coll:   client.Database(dbcreds.DBNAME).Collection(weaponTypeCol),
 	}
 }
 
-func (s *MongoWeaponTypeStore) GetWeaponTypes(ctx context.Context) ([]*types.WeaponType, error) {
-	var weaponTypes []*types.WeaponType
+func (s *MongoWeaponTypeStore) GetWeaponTypes(ctx context.Context) ([]*dictionaries.WeaponType, error) {
+	var weaponTypes []*dictionaries.WeaponType
 
 	cur, err := s.coll.Find(ctx, bson.D{})
 
@@ -49,7 +50,7 @@ func (s *MongoWeaponTypeStore) GetWeaponTypes(ctx context.Context) ([]*types.Wea
 	return weaponTypes, nil
 }
 
-func (s *MongoWeaponTypeStore) CreateWeaponType(ctx context.Context, weaponType *types.WeaponTypeCreateParams) (*types.WeaponTypeCreateParams, error) {
+func (s *MongoWeaponTypeStore) CreateWeaponType(ctx context.Context, weaponType *dictionaries.WeaponTypeCreateParams) (*dictionaries.WeaponTypeCreateParams, error) {
 	res, err := s.coll.InsertOne(ctx, weaponType)
 
 	if err != nil {
@@ -62,7 +63,7 @@ func (s *MongoWeaponTypeStore) CreateWeaponType(ctx context.Context, weaponType 
 }
 
 func (s *MongoWeaponTypeStore) DeleteWeaponType(ctx context.Context, id string) error {
-	oid, err := ToObjectID(id)
+	oid, err := db.ToObjectID(id)
 
 	if err != nil {
 		return err
@@ -75,15 +76,15 @@ func (s *MongoWeaponTypeStore) DeleteWeaponType(ctx context.Context, id string) 
 	return nil
 }
 
-func (s *MongoWeaponTypeStore) UpdateWeaponType(ctx context.Context, id string, values *types.WeaponTypeUpdateParams) (*types.WeaponType, error) {
-	var weaponType *types.WeaponType
-	oid, err := ToObjectID(id)
+func (s *MongoWeaponTypeStore) UpdateWeaponType(ctx context.Context, id string, values *dictionaries.WeaponTypeUpdateParams) (*dictionaries.WeaponType, error) {
+	var weaponType *dictionaries.WeaponType
+	oid, err := db.ToObjectID(id)
 
 	if err != nil {
 		return nil, err
 	}
 
-	update := MakeUpdateFormat(values)
+	update := db.MakeUpdateFormat(values)
 
 	res := s.coll.FindOneAndUpdate(
 		ctx,
@@ -96,7 +97,10 @@ func (s *MongoWeaponTypeStore) UpdateWeaponType(ctx context.Context, id string, 
 		return nil, res.Err()
 	}
 
-	res.Decode(&weaponType)
+	err = res.Decode(&weaponType)
+	if err != nil {
+		return nil, err
+	}
 
 	return weaponType, nil
 }

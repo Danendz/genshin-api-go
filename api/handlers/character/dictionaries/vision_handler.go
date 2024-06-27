@@ -1,17 +1,18 @@
-package handlers
+package dictionaries
 
 import (
 	"github.com/Danendz/genshin-api-go/api"
-	"github.com/Danendz/genshin-api-go/db"
-	"github.com/Danendz/genshin-api-go/types"
+	"github.com/Danendz/genshin-api-go/api/handlers"
+	"github.com/Danendz/genshin-api-go/db/character/dictionaries"
+	dictionaries2 "github.com/Danendz/genshin-api-go/types/character/dictionaries"
 	"github.com/gofiber/fiber/v3"
 )
 
 type VisionHandler struct {
-	visionStore db.VisionStore
+	visionStore dictionaries.VisionStore
 }
 
-func NewVisionHandler(visionStore db.VisionStore) *VisionHandler {
+func NewVisionHandler(visionStore dictionaries.VisionStore) *VisionHandler {
 	return &VisionHandler{
 		visionStore: visionStore,
 	}
@@ -25,20 +26,20 @@ func (h *VisionHandler) HandleGetVisions(ctx fiber.Ctx) error {
 	}
 
 	if visions == nil {
-		visions = make([]*types.Vision, 0)
+		visions = make([]*dictionaries2.Vision, 0)
 	}
 
 	return ctx.JSON(api.NewApiResponse("visions fetched successfully", visions, true))
 }
 
 func (h *VisionHandler) HandleCreateVision(ctx fiber.Ctx) (err error) {
-	var vision *types.VisionCreateParams
+	var vision *dictionaries2.VisionCreateParams
 
 	if err = ctx.Bind().Body(&vision); err != nil {
 		return err
 	}
 
-	if errors := validator.Validate(vision); len(errors) > 0 {
+	if errors := handlers.Validator.Validate(vision); len(errors) > 0 {
 		return ctx.JSON(api.NewApiResponse("invalid vision", errors, false))
 	}
 
@@ -63,15 +64,15 @@ func (h *VisionHandler) HandleDeleteVision(ctx fiber.Ctx) (err error) {
 
 func (h *VisionHandler) HandleUpdateVision(ctx fiber.Ctx) (err error) {
 	var (
-		id = ctx.Params("id")
-		values *types.VisionUpdateParams
+		id     = ctx.Params("id")
+		values *dictionaries2.VisionUpdateParams
 	)
 
 	if err := ctx.Bind().Body(&values); err != nil {
 		return err
 	}
 
-	if errors := validator.Validate(values); len(errors) > 0 {
+	if errors := handlers.Validator.Validate(values); len(errors) > 0 {
 		return ctx.JSON(api.NewApiResponse("invalid vision", errors, false))
 	}
 

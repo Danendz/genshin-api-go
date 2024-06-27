@@ -1,9 +1,10 @@
-package db
+package dictionaries
 
 import (
 	"context"
+	"github.com/Danendz/genshin-api-go/db"
+	"github.com/Danendz/genshin-api-go/types/character/dictionaries"
 
-	"github.com/Danendz/genshin-api-go/types"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -13,10 +14,10 @@ import (
 const visionCol = "visions"
 
 type VisionStore interface {
-	GetVisions(ctx context.Context) ([]*types.Vision, error)
-	CreateVision(ctx context.Context, vision *types.VisionCreateParams) (*types.VisionCreateParams, error)
+	GetVisions(ctx context.Context) ([]*dictionaries.Vision, error)
+	CreateVision(ctx context.Context, vision *dictionaries.VisionCreateParams) (*dictionaries.VisionCreateParams, error)
 	DeleteVision(ctx context.Context, id string) error
-	UpdateVision(ctx context.Context, id string, values *types.VisionUpdateParams) (*types.Vision, error)
+	UpdateVision(ctx context.Context, id string, values *dictionaries.VisionUpdateParams) (*dictionaries.Vision, error)
 }
 
 type MongoVisionStore struct {
@@ -24,15 +25,15 @@ type MongoVisionStore struct {
 	coll   *mongo.Collection
 }
 
-func NewMongoVisionStore(client *mongo.Client, dbcreds *DBCreds) *MongoVisionStore {
+func NewMongoVisionStore(client *mongo.Client, dbcreds *db.Creds) *MongoVisionStore {
 	return &MongoVisionStore{
 		client: client,
 		coll:   client.Database(dbcreds.DBNAME).Collection(visionCol),
 	}
 }
 
-func (s *MongoVisionStore) GetVisions(ctx context.Context) ([]*types.Vision, error) {
-	var visions []*types.Vision
+func (s *MongoVisionStore) GetVisions(ctx context.Context) ([]*dictionaries.Vision, error) {
+	var visions []*dictionaries.Vision
 
 	cur, err := s.coll.Find(ctx, bson.D{})
 
@@ -49,7 +50,7 @@ func (s *MongoVisionStore) GetVisions(ctx context.Context) ([]*types.Vision, err
 	return visions, nil
 }
 
-func (s *MongoVisionStore) CreateVision(ctx context.Context, vision *types.VisionCreateParams) (*types.VisionCreateParams, error) {
+func (s *MongoVisionStore) CreateVision(ctx context.Context, vision *dictionaries.VisionCreateParams) (*dictionaries.VisionCreateParams, error) {
 	res, err := s.coll.InsertOne(ctx, vision)
 
 	if err != nil {
@@ -62,7 +63,7 @@ func (s *MongoVisionStore) CreateVision(ctx context.Context, vision *types.Visio
 }
 
 func (s *MongoVisionStore) DeleteVision(ctx context.Context, id string) error {
-	oid, err := ToObjectID(id)
+	oid, err := db.ToObjectID(id)
 
 	if err != nil {
 		return err
@@ -75,15 +76,15 @@ func (s *MongoVisionStore) DeleteVision(ctx context.Context, id string) error {
 	return nil
 }
 
-func (s *MongoVisionStore) UpdateVision(ctx context.Context, id string, values *types.VisionUpdateParams) (*types.Vision, error) {
-	var vision *types.Vision
-	oid, err := ToObjectID(id)
+func (s *MongoVisionStore) UpdateVision(ctx context.Context, id string, values *dictionaries.VisionUpdateParams) (*dictionaries.Vision, error) {
+	var vision *dictionaries.Vision
+	oid, err := db.ToObjectID(id)
 
 	if err != nil {
 		return nil, err
 	}
 
-	update := MakeUpdateFormat(values)
+	update := db.MakeUpdateFormat(values)
 
 	res := s.coll.FindOneAndUpdate(
 		ctx,
@@ -96,7 +97,11 @@ func (s *MongoVisionStore) UpdateVision(ctx context.Context, id string, values *
 		return nil, res.Err()
 	}
 
-	res.Decode(&vision)
+	err = res.Decode(&vision)
+
+	if err != nil {
+		return nil, err
+	}
 
 	return vision, nil
 }

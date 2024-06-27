@@ -1,4 +1,4 @@
-package types
+package character
 
 import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -69,15 +69,7 @@ type PassiveTalent struct {
 }
 
 type SkillTalent struct {
-	Name        string    `bson:"name" json:"name"`
-	Description string    `bson:"description" json:"description"`
-	Type        SkillType `bson:"type" json:"type"`
+	Name        string             `bson:"name" json:"name"`
+	Description string             `bson:"description" json:"description"`
+	TypeID      primitive.ObjectID `bson:"type" json:"type"`
 }
-
-type SkillType uint8
-
-const (
-	NORMAL_ATTACK SkillType = iota
-	ELEMENTAL_SKILL
-	ELEMENTAL_BURST
-)

@@ -1,17 +1,18 @@
-package handlers
+package dictionaries
 
 import (
 	"github.com/Danendz/genshin-api-go/api"
-	"github.com/Danendz/genshin-api-go/db"
-	"github.com/Danendz/genshin-api-go/types"
+	"github.com/Danendz/genshin-api-go/api/handlers"
+	"github.com/Danendz/genshin-api-go/db/character/dictionaries"
+	dictionaries2 "github.com/Danendz/genshin-api-go/types/character/dictionaries"
 	"github.com/gofiber/fiber/v3"
 )
 
 type WeaponTypeHandler struct {
-	weaponTypeStore db.WeaponTypeStore
+	weaponTypeStore dictionaries.WeaponTypeStore
 }
 
-func NewWeaponTypeHandler(weaponTypeStore db.WeaponTypeStore) *WeaponTypeHandler {
+func NewWeaponTypeHandler(weaponTypeStore dictionaries.WeaponTypeStore) *WeaponTypeHandler {
 	return &WeaponTypeHandler{
 		weaponTypeStore: weaponTypeStore,
 	}
@@ -25,20 +26,20 @@ func (h *WeaponTypeHandler) HandleGetWeaponTypes(ctx fiber.Ctx) (err error) {
 	}
 
 	if weaponTypes == nil {
-		weaponTypes = make([]*types.WeaponType, 0)
+		weaponTypes = make([]*dictionaries2.WeaponType, 0)
 	}
 
 	return ctx.JSON(api.NewApiResponse("weapon types fetched successfully", weaponTypes, true))
 }
 
 func (h *WeaponTypeHandler) HandleCreateWeaponType(ctx fiber.Ctx) (err error) {
-	var weaponType *types.WeaponTypeCreateParams
+	var weaponType *dictionaries2.WeaponTypeCreateParams
 
 	if err := ctx.Bind().Body(&weaponType); err != nil {
 		return err
 	}
 
-	if errors := validator.Validate(weaponType); len(errors) > 0 {
+	if errors := handlers.Validator.Validate(weaponType); len(errors) > 0 {
 		return ctx.JSON(api.NewApiResponse("invalid weapon type", errors, false))
 	}
 
@@ -64,8 +65,8 @@ func (h *WeaponTypeHandler) HandleDeleteWeaponType(ctx fiber.Ctx) (err error) {
 
 func (h *WeaponTypeHandler) HandleUpdateWeaponType(ctx fiber.Ctx) (err error) {
 	var (
-		id = ctx.Params("id")
-		values *types.WeaponTypeUpdateParams
+		id     = ctx.Params("id")
+		values *dictionaries2.WeaponTypeUpdateParams
 	)
 
 	if err := ctx.Bind().Body(&values); err != nil {

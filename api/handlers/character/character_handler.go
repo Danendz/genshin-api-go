@@ -1,17 +1,18 @@
-package handlers
+package character
 
 import (
 	"github.com/Danendz/genshin-api-go/api"
-	"github.com/Danendz/genshin-api-go/db"
-	"github.com/Danendz/genshin-api-go/types"
+	"github.com/Danendz/genshin-api-go/api/handlers"
+	"github.com/Danendz/genshin-api-go/db/character"
+	character2 "github.com/Danendz/genshin-api-go/types/character"
 	"github.com/gofiber/fiber/v3"
 )
 
 type CharacterHandler struct {
-	characterStore db.CharacterStore
+	characterStore character.CharacterStore
 }
 
-func NewCharacterHandler(characterStore db.CharacterStore) *CharacterHandler {
+func NewCharacterHandler(characterStore character.CharacterStore) *CharacterHandler {
 	return &CharacterHandler{
 		characterStore: characterStore,
 	}
@@ -25,10 +26,10 @@ func (h *CharacterHandler) HandleGetCharacters(ctx fiber.Ctx) error {
 	}
 
 	if characters == nil {
-		characters = make([]*types.Character, 0)
+		characters = make([]*character2.Character, 0)
 	}
 
-	return ctx.JSON(api.NewApiResponse("characters fetched successfully", characters, true))
+	return ctx.JSON(api.NewApiResponse("character fetched successfully", characters, true))
 }
 
 func (h *CharacterHandler) HandleGetCharacter(ctx fiber.Ctx) error {
@@ -43,13 +44,13 @@ func (h *CharacterHandler) HandleGetCharacter(ctx fiber.Ctx) error {
 }
 
 func (h *CharacterHandler) HandleCreateCharacter(ctx fiber.Ctx) error {
-	var character *types.CharacterCreateParams
+	var character *character2.CharacterCreateParams
 
 	if err := ctx.Bind().Body(&character); err != nil {
 		return err
 	}
 
-	if errors := validator.Validate(character); len(errors) > 0 {
+	if errors := handlers.Validator.Validate(character); len(errors) > 0 {
 		return ctx.JSON(api.NewApiResponse("invalid character", errors, false))
 	}
 
@@ -74,8 +75,8 @@ func (h *CharacterHandler) HandleDeleteCharacter(ctx fiber.Ctx) error {
 
 func (h *CharacterHandler) HandleUpdateCharacter(ctx fiber.Ctx) error {
 	var (
-		id = ctx.Params("id")
-		values *types.CharacterUpdateParams
+		id     = ctx.Params("id")
+		values *character2.CharacterUpdateParams
 	)
 
 	if err := ctx.Bind().Body(&values); err != nil {

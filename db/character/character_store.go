@@ -1,23 +1,24 @@
-package db
+package character
 
 import (
 	"context"
+	"github.com/Danendz/genshin-api-go/db"
+	"github.com/Danendz/genshin-api-go/types/character"
 
-	"github.com/Danendz/genshin-api-go/types"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-const characterCol = "characters"
+const characterCol = "character"
 
 type CharacterStore interface {
-	GetCharacters(ctx context.Context) ([]*types.Character, error)
-	GetCharacter(ctx context.Context, id string) (*types.Character, error)
-	CreateCharacter(ctx context.Context, character *types.CharacterCreateParams) (*types.CharacterCreateParams, error)
+	GetCharacters(ctx context.Context) ([]*character.Character, error)
+	GetCharacter(ctx context.Context, id string) (*character.Character, error)
+	CreateCharacter(ctx context.Context, character *character.CharacterCreateParams) (*character.CharacterCreateParams, error)
 	DeleteCharacter(ctx context.Context, id string) error
-	UpdateCharacter(ctx context.Context, id string, values *types.CharacterUpdateParams) (*types.Character, error)
+	UpdateCharacter(ctx context.Context, id string, values *character.CharacterUpdateParams) (*character.Character, error)
 }
 
 type MongoCharacterStore struct {
@@ -25,15 +26,15 @@ type MongoCharacterStore struct {
 	coll   *mongo.Collection
 }
 
-func NewMongoCharacterStore(client *mongo.Client, dbcreds *DBCreds) *MongoCharacterStore {
+func NewMongoCharacterStore(client *mongo.Client, dbcreds *db.Creds) *MongoCharacterStore {
 	return &MongoCharacterStore{
 		client: client,
 		coll:   client.Database(dbcreds.DBNAME).Collection(characterCol),
 	}
 }
 
-func (s *MongoCharacterStore) GetCharacters(ctx context.Context) ([]*types.Character, error) {
-	var characters []*types.Character
+func (s *MongoCharacterStore) GetCharacters(ctx context.Context) ([]*character.Character, error) {
+	var characters []*character.Character
 
 	cur, err := s.coll.Find(ctx, bson.D{})
 
@@ -50,10 +51,10 @@ func (s *MongoCharacterStore) GetCharacters(ctx context.Context) ([]*types.Chara
 	return characters, nil
 }
 
-func (s *MongoCharacterStore) GetCharacter(ctx context.Context, id string) (*types.Character, error) {
-	var character *types.Character
+func (s *MongoCharacterStore) GetCharacter(ctx context.Context, id string) (*character.Character, error) {
+	var character *character.Character
 
-	oid, err := ToObjectID(id)
+	oid, err := db.ToObjectID(id)
 
 	if err != nil {
 		return nil, err
@@ -66,7 +67,7 @@ func (s *MongoCharacterStore) GetCharacter(ctx context.Context, id string) (*typ
 	return character, nil
 }
 
-func (s *MongoCharacterStore) CreateCharacter(ctx context.Context, character *types.CharacterCreateParams) (*types.CharacterCreateParams, error) {
+func (s *MongoCharacterStore) CreateCharacter(ctx context.Context, character *character.CharacterCreateParams) (*character.CharacterCreateParams, error) {
 	res, err := s.coll.InsertOne(ctx, character)
 
 	if err != nil {
@@ -79,7 +80,7 @@ func (s *MongoCharacterStore) CreateCharacter(ctx context.Context, character *ty
 }
 
 func (s *MongoCharacterStore) DeleteCharacter(ctx context.Context, id string) error {
-	oid, err := ToObjectID(id)
+	oid, err := db.ToObjectID(id)
 
 	if err != nil {
 		return err
@@ -92,15 +93,15 @@ func (s *MongoCharacterStore) DeleteCharacter(ctx context.Context, id string) er
 	return nil
 }
 
-func (s *MongoCharacterStore) UpdateCharacter(ctx context.Context, id string, values *types.CharacterUpdateParams) (*types.Character, error) {
-	var character *types.Character
-	oid, err := ToObjectID(id)
+func (s *MongoCharacterStore) UpdateCharacter(ctx context.Context, id string, values *character.CharacterUpdateParams) (*character.Character, error) {
+	var character *character.Character
+	oid, err := db.ToObjectID(id)
 
 	if err != nil {
 		return nil, err
 	}
 
-	update := MakeUpdateFormat(values)
+	update := db.MakeUpdateFormat(values)
 
 	res := s.coll.FindOneAndUpdate(
 		ctx,
@@ -113,7 +114,10 @@ func (s *MongoCharacterStore) UpdateCharacter(ctx context.Context, id string, va
 		return nil, res.Err()
 	}
 
-	res.Decode(&character)
+	err = res.Decode(&character)
+	if err != nil {
+		return nil, err
+	}
 
 	return character, nil
 }

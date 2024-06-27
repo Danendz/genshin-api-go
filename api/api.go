@@ -12,13 +12,13 @@ import (
 )
 
 type (
-	APIResponse struct {
+	Response struct {
 		Message string      `json:"message"`
 		Data    interface{} `json:"data"`
 		Success bool        `json:"success"`
 	}
 
-	XValidator struct{
+	XValidator struct {
 		validator *validator.Validate
 	}
 
@@ -30,8 +30,8 @@ type (
 
 var validate = validator.New(validator.WithRequiredStructEnabled())
 
-func NewApiResponse(message string, data interface{}, success bool) *APIResponse {
-	return &APIResponse{
+func NewApiResponse(message string, data interface{}, success bool) *Response {
+	return &Response{
 		Message: message,
 		Data:    data,
 		Success: success,
@@ -39,13 +39,13 @@ func NewApiResponse(message string, data interface{}, success bool) *APIResponse
 }
 
 func NewRestrictedApiRouter(router fiber.Router) fiber.Router {
-	admin_username := os.Getenv("ADMIN_USERNAME")
-	admin_password := os.Getenv("ADMIN_PASSWORD")
+	adminUsername := os.Getenv("ADMIN_USERNAME")
+	adminPassword := os.Getenv("ADMIN_PASSWORD")
 
 	restricted := router.Group("/", basicauth.New(
 		basicauth.Config{
 			Users: map[string]string{
-				admin_username: admin_password,
+				adminUsername: adminPassword,
 			},
 		},
 	))
@@ -53,8 +53,8 @@ func NewRestrictedApiRouter(router fiber.Router) fiber.Router {
 	return restricted
 }
 
-func (x XValidator) Validate(data interface{}) []*ValidationError{
-	errors := []*ValidationError{}
+func (x XValidator) Validate(data interface{}) []*ValidationError {
+	var errors []*ValidationError
 
 	if err := x.validator.Struct(data); err != nil {
 		for _, err := range err.(validator.ValidationErrors) {
@@ -94,5 +94,5 @@ func NewValidator() *XValidator {
 
 	return &XValidator{
 		validator: validate,
-	}	
+	}
 }

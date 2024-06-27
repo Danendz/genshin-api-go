@@ -8,13 +8,13 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type DBCreds struct {
+type Creds struct {
 	DBNAME  string
 	DBURI   string
 	DBCREDS options.Credential
 }
 
-func NewDBCreds() *DBCreds {
+func NewDBCreds() *Creds {
 	dbname := os.Getenv("DBNAME")
 	dburi := os.Getenv("DBURI")
 	username := os.Getenv("DBUSERNAME")
@@ -25,9 +25,9 @@ func NewDBCreds() *DBCreds {
 		password = "root"
 	}
 
-	return &DBCreds{
+	return &Creds{
 		DBNAME: dbname,
-		DBURI: dburi,
+		DBURI:  dburi,
 		DBCREDS: options.Credential{
 			Username: username,
 			Password: password,
